@@ -43,10 +43,9 @@ function calcularSalario(salario: number) {
   let descuentoAFP: number = roundNumber((salario * porcentajeDescuentoAFP) / 100);
   let descuentoISSS: number = roundNumber((salario * porcentajeDescuentoISSS) / 100);
 
-  let desc_AFP_ISS_Inicial: number = salario - (descuentoAFP + descuentoISSS);
-
-  if (desc_AFP_ISS_Inicial + descuentoAFP >= 1000) descuentoISSS = 30.0;
-  if (desc_AFP_ISS_Inicial + descuentoAFP >= 6377.15) descuentoAFP = 398.57;
+  //? Se limita el descuento del AFP a $398.57 cuando el salario es mayor a $6377.15?
+  // if (salario >= 6377.15) descuentoAFP = 398.57;
+  if (salario >= 1000) descuentoISSS = 30.0;
 
   const salarioDescuentoAFPISSS = salario - (descuentoAFP + descuentoISSS);
   let res: DesgloseDescuentos = {
@@ -94,5 +93,5 @@ function calcularSalario(salario: number) {
   return res;
 }
 
-const desglose = calcularSalario(1600);
+const desglose = calcularSalario(1000);
 console.log(desglose);
