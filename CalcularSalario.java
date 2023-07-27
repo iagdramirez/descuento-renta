@@ -1,10 +1,14 @@
+import java.util.Scanner;
 import java.text.DecimalFormat;
 
-public class CalcularSalario {
+class HelloWorld {
   public static void main(String[] args) {
+    Scanner scanner = new Scanner(System.in);
     DecimalFormat df = new DecimalFormat("#.##");
 
-    double salario = 360;
+    System.out.print("Ingrese su salario: $");
+    double salario = scanner.nextDouble();
+    scanner.close();
 
     double porcentajeDescuentoAFP = 0.0725;
     double porcentajeDescuentoISSS = 0.03;
