@@ -1,3 +1,31 @@
+import * as readline from "node:readline";
+import { stdin as input, stdout as output } from "node:process";
+
+// Crear una interfaz para leer datos desde la consola
+const rl = readline.createInterface({ input, output });
+
+// Función para solicitar un número al usuario
+function promptNumber(strQuestion: string): Promise<number> {
+  return new Promise((resolve) => {
+    // Abrir interfaz de lectura de la consola
+    rl.question(strQuestion, (answer: string) => {
+      const parsedNumber = parseFloat(answer);
+      if (!isNaN(parsedNumber)) {
+        resolve(parsedNumber);
+
+        rl.close();  // Cerrar la interfaz de lectura de la consola
+      } else {
+        console.log("¡Error! Debes ingresar un número válido.");
+        resolve(promptNumber(strQuestion));
+      }
+    });
+  });
+}
+
+function roundNumber(num: number) {
+  return Math.round(num * 100) / 100;
+}
+
 type DesgloseDescuentos = {
   msg?: string;
   salario: number;
@@ -21,11 +49,9 @@ type TablaRetenciones = {
   porcentajeDescuentoRentaTres: number;
 };
 
-function roundNumber(num: number) {
-  return Math.round(num * 100) / 100;
-}
+async function calcularSalario() {
+  const salario = await promptNumber("Ingresa tu salario: ");
 
-function calcularSalario(salario: number) {
   const porcentajeDescuentoAFP = 7.25; // 7.25%
   const porcentajeDescuentoISSS = 3.0; // 3.00%
   const tablaRetenciones: TablaRetenciones = {
@@ -90,8 +116,7 @@ function calcularSalario(salario: number) {
   res.salarioNetoMensual = roundNumber(res.salarioDescuentoAFPISSS - res.descuentoRenta);
   res.salarioNetoQuincenal = roundNumber(res.salarioNetoMensual / 2);
 
-  return res;
+  console.log(res);
 }
 
-const desglose = calcularSalario(1000);
-console.log(desglose);
+calcularSalario();
