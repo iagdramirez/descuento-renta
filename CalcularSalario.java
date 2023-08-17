@@ -1,18 +1,17 @@
-import java.util.Scanner;
 import java.text.DecimalFormat;
+import java.util.Scanner;
 
-class HelloWorld {
+class CalcularSalario {
+
   public static void main(String[] args) {
-    Scanner scanner = new Scanner(System.in);
-    DecimalFormat df = new DecimalFormat("#.##");
+    // Obtener el salario mediante consola
+    double salario = obtenerSalario();
 
-    System.out.print("Ingrese su salario: $");
-    double salario = scanner.nextDouble();
-    scanner.close();
-
+    // Establecer porcentajes de descuento AFP e ISSS
     double porcentajeDescuentoAFP = 0.0725;
     double porcentajeDescuentoISSS = 0.03;
 
+    // Tramos de decuento de renta
     double cuotaFijaUno = 17.67;
     double cuotaFijaDos = 60.0;
     double cuotaFijaTres = 288.57;
@@ -23,53 +22,151 @@ class HelloWorld {
     double porcentajeDescuentoRentaDos = 0.2;
     double porcentajeDescuentoRentaTres = 0.3;
 
+    // Calcular el descuento de AFP e ISSS por el porcentaje
     double descuentoAFP = salario * porcentajeDescuentoAFP;
     double descuentoISSS = salario * porcentajeDescuentoISSS;
 
     //? Se limita el descuento del AFP a $398.57 cuando el salario es mayor a $6377.15?
     // if (salario >= 6377.15) descuentoAFP = 398.57;
-    if (salario >= 1000)
-      descuentoISSS = 30.0;
 
+    // Limitar descuento del ISS a $30 si el salario es mayor a $1000
+    if (salario >= 1000) descuentoISSS = 30.0;
+
+    // Calcular el salario menos los descuentos del AFP e ISSS
     double salarioDescuentoAFPISSS = salario - (descuentoAFP + descuentoISSS);
 
+    // Calcular Salario Neto Mensual y Quincenal
     double salarioNetoMensual = salarioDescuentoAFPISSS;
     double salarioNetoQuincenal = salarioDescuentoAFPISSS / 2;
 
+    // Inicializar los tramos que se van a usar
     double cuotaFija = 0;
     double excesoDeRenta = 0;
     double porcentajeDescuentoRenta = 0;
 
-    if (salarioDescuentoAFPISSS >= excesoDeRentaUno && salarioDescuentoAFPISSS < excesoDeRentaDos) {
+    //! Si el salario menos los descuentos del AFP e ISSS no se encuentra en niguno
+    //! de los tramos II, III & IV, se intuye que estará en el Tramo I
+    //! por lo cuál no se le aplica ningún descuento de renta.
+
+    //* Verificar si el salario (menos los descuentos del AFP e ISSS)
+    //* se encuentra en el Tramo II
+    if (
+      salarioDescuentoAFPISSS >= excesoDeRentaUno &&
+      salarioDescuentoAFPISSS < excesoDeRentaDos
+    ) {
       cuotaFija = cuotaFijaUno;
       excesoDeRenta = excesoDeRentaUno;
       porcentajeDescuentoRenta = porcentajeDescuentoRentaUno;
-    } else if (salarioDescuentoAFPISSS >= excesoDeRentaDos && salarioDescuentoAFPISSS < excesoDeRentaTres) {
+    }
+    //* Verificar si el salario (menos los descuentos del AFP e ISSS)
+    //* se encuentra en el Tramo III
+    else if (
+      salarioDescuentoAFPISSS >= excesoDeRentaDos &&
+      salarioDescuentoAFPISSS < excesoDeRentaTres
+    ) {
       cuotaFija = cuotaFijaDos;
       excesoDeRenta = excesoDeRentaDos;
       porcentajeDescuentoRenta = porcentajeDescuentoRentaDos;
-    } else if (salarioDescuentoAFPISSS >= excesoDeRentaTres) {
+    }
+    //* Verificar si el salario (menos los descuentos del AFP e ISSS)
+    //* se encuentra en el Tramo IV
+    else if (salarioDescuentoAFPISSS >= excesoDeRentaTres) {
       cuotaFija = cuotaFijaTres;
       excesoDeRenta = excesoDeRentaTres;
       porcentajeDescuentoRenta = porcentajeDescuentoRentaTres;
     }
 
-    double descRentaSinCF = (salarioDescuentoAFPISSS - excesoDeRenta) * porcentajeDescuentoRenta;
+    // Se calcula el descuento de renta sin tomar en cuenta la cuota fija según el tramo
+    double descRentaSinCF =
+      (salarioDescuentoAFPISSS - excesoDeRenta) * porcentajeDescuentoRenta;
+
+    // Se le agrega la cuota fija al descuento de renta
     double descuentoRenta = descRentaSinCF + cuotaFija;
 
+    // Se vuelve a calcular el salario neto mensual y quincenal
     salarioNetoMensual = salarioDescuentoAFPISSS - descuentoRenta;
     salarioNetoQuincenal = salarioNetoMensual / 2;
 
-    System.out.println(df.format(salario) + " - " + df.format(salario / 2));
-    System.out.println("----------------------");
-    System.out.println(df.format(descuentoAFP) + " - " + df.format(descuentoAFP / 2));
-    System.out.println("----------------------");
-    System.out.println(df.format(descuentoISSS) + " - " + df.format(descuentoISSS / 2));
-    System.out.println("----------------------");
-    System.out.println(df.format(salarioDescuentoAFPISSS) + " - " + df.format(salarioDescuentoAFPISSS / 2));
-    System.out.println("----------------------");
-    System.out.println(df.format(descuentoRenta) + " - " + df.format(descuentoRenta / 2));
-    System.out.println("----------------------");
-    System.out.println(df.format(salarioNetoMensual) + " - " + df.format(salarioNetoQuincenal));
+    // Declarando el formato de los montos finales
+    DecimalFormat df = new DecimalFormat("#.##");
+
+    // Imprimir headers de la tabla
+    System.out.println("Tipo                    |  Mensual - Quincenal");
+    System.out.println("-------------------------");
+
+    // Imprimir Salario
+    System.out.print("Salario                 |  ");
+    System.out.print("$" + df.format(salario));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(salario / 2));
+    System.out.println("-------------------------");
+
+    // Imprimir Descuento AFP
+    System.out.print("Descuento AFP           |  ");
+    System.out.print("$" + df.format(descuentoAFP));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(descuentoAFP / 2));
+    System.out.println("-------------------------");
+
+    // Imprimir Descuento ISSS
+    System.out.print("Descuento ISSS          |  ");
+    System.out.print("$" + df.format(descuentoISSS));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(descuentoISSS / 2));
+    System.out.println("-------------------------");
+
+    // Salario con descuento del AFP y del ISSS
+    System.out.print("Salario sin AFP e ISSS  |  ");
+    System.out.print("$" + df.format(salarioDescuentoAFPISSS));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(salarioDescuentoAFPISSS / 2));
+    System.out.println("-------------------------");
+
+    // Imprimir Descuento de Renta
+    System.out.print("Descuento Renta:        |  ");
+    System.out.print("$" + df.format(descuentoRenta));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(descuentoRenta / 2));
+    System.out.println("-------------------------");
+
+    // Imprimir Salario Neto
+    System.out.print("Salario Neto:           |  ");
+    System.out.print("$" + df.format(salarioNetoMensual));
+    System.out.print(" - ");
+    System.out.println("$" + df.format(salarioNetoQuincenal));
+    System.out.println("-------------------------");
+  }
+
+  // Función para pedir el salario al usuario
+  public static double obtenerSalario() {
+    // Declarar el Scanner
+    Scanner scanner = new Scanner(System.in);
+
+    // Inicializar el salario
+    double salario = 0;
+
+    // Pedir el salario al usuario mientras el salario recibido sea menor o igual a cero
+    do {
+      System.out.print("Ingrese su salario: $");
+
+      // Comprobar que el dato recibido en el scanner sea un double
+      while (!scanner.hasNextDouble()) {
+        System.out.println();
+        System.out.println("El dato ingresado no es válido!");
+        System.out.println();
+        System.out.print("Ingrese su salario: $");
+        scanner.next(); // Limpia la entrada inválida del scanner
+      }
+
+      // Almacenar el dato del scanner
+      salario = scanner.nextDouble();
+    } while (salario <= 0);
+
+    // Cerrar scanner
+    scanner.close();
+    System.out.println();
+
+    // Devolver el salario
+    return salario;
   }
 }
