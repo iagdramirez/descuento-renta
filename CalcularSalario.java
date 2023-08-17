@@ -1,4 +1,5 @@
 import java.text.DecimalFormat;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class CalcularSalario {
@@ -8,19 +9,21 @@ class CalcularSalario {
     double salario = obtenerSalario();
 
     // Establecer porcentajes de descuento AFP e ISSS
-    double porcentajeDescuentoAFP = 0.0725;
-    double porcentajeDescuentoISSS = 0.03;
+    double porcentajeDescuentoAFP = 0.0725; // 7.25%
+    double porcentajeDescuentoISSS = 0.03; // 3.00%
 
     // Tramos de decuento de renta
     double cuotaFijaUno = 17.67;
+    double excesoDeRentaUno = 472.00;
+    double porcentajeDescuentoRentaUno = 0.1; // 10%
+
     double cuotaFijaDos = 60.0;
+    double excesoDeRentaDos = 895.24;
+    double porcentajeDescuentoRentaDos = 0.2; // 20%
+
     double cuotaFijaTres = 288.57;
-    double excesoDeRentaUno = 472.01;
-    double excesoDeRentaDos = 895.25;
-    double excesoDeRentaTres = 2038.11;
-    double porcentajeDescuentoRentaUno = 0.1;
-    double porcentajeDescuentoRentaDos = 0.2;
-    double porcentajeDescuentoRentaTres = 0.3;
+    double excesoDeRentaTres = 2038.10;
+    double porcentajeDescuentoRentaTres = 0.3; // 30%
 
     // Calcular el descuento de AFP e ISSS por el porcentaje
     double descuentoAFP = salario * porcentajeDescuentoAFP;
@@ -51,8 +54,8 @@ class CalcularSalario {
     //* Verificar si el salario (menos los descuentos del AFP e ISSS)
     //* se encuentra en el Tramo II
     if (
-      salarioDescuentoAFPISSS >= excesoDeRentaUno &&
-      salarioDescuentoAFPISSS < excesoDeRentaDos
+      salarioDescuentoAFPISSS > excesoDeRentaUno &&
+      salarioDescuentoAFPISSS <= excesoDeRentaDos
     ) {
       cuotaFija = cuotaFijaUno;
       excesoDeRenta = excesoDeRentaUno;
@@ -61,8 +64,8 @@ class CalcularSalario {
     //* Verificar si el salario (menos los descuentos del AFP e ISSS)
     //* se encuentra en el Tramo III
     else if (
-      salarioDescuentoAFPISSS >= excesoDeRentaDos &&
-      salarioDescuentoAFPISSS < excesoDeRentaTres
+      salarioDescuentoAFPISSS > excesoDeRentaDos &&
+      salarioDescuentoAFPISSS <= excesoDeRentaTres
     ) {
       cuotaFija = cuotaFijaDos;
       excesoDeRenta = excesoDeRentaDos;
@@ -70,7 +73,7 @@ class CalcularSalario {
     }
     //* Verificar si el salario (menos los descuentos del AFP e ISSS)
     //* se encuentra en el Tramo IV
-    else if (salarioDescuentoAFPISSS >= excesoDeRentaTres) {
+    else if (salarioDescuentoAFPISSS > excesoDeRentaTres) {
       cuotaFija = cuotaFijaTres;
       excesoDeRenta = excesoDeRentaTres;
       porcentajeDescuentoRenta = porcentajeDescuentoRentaTres;
@@ -91,6 +94,7 @@ class CalcularSalario {
     DecimalFormat df = new DecimalFormat("#.##");
 
     // Imprimir headers de la tabla
+    System.out.println("-------------------------");
     System.out.println("Tipo                    |  Mensual - Quincenal");
     System.out.println("-------------------------");
 
@@ -145,26 +149,32 @@ class CalcularSalario {
     // Inicializar el salario
     double salario = 0;
 
-    // Pedir el salario al usuario mientras el salario recibido sea menor o igual a cero
-    do {
-      System.out.print("Ingrese su salario: $");
+    // Inicializar un bucle donde se compruebe que ingrese sea válido
+    boolean salarioValido = false;
+    while (!salarioValido) {
+      try {
+        // Captura el salario ingresado
+        System.out.print("Ingrese su salario: $");
+        salario = scanner.nextDouble();
 
-      // Comprobar que el dato recibido en el scanner sea un double
-      while (!scanner.hasNextDouble()) {
+        // Verifica que el salario ingresado sea mayor a $0
+        if (salario > 0) salarioValido = true;
+        // Si el salario es menor a $0 arroja un mensaje personalizado
+        else {
+          System.out.println();
+          System.out.println("El salario debe ser mayor a $0");
+        }
+      } catch (InputMismatchException e) {
+        // Si el salario ingresado contiene caractéres inválidos arroja otro mensaje personalizado
         System.out.println();
         System.out.println("El dato ingresado no es válido!");
-        System.out.println();
-        System.out.print("Ingrese su salario: $");
-        scanner.next(); // Limpia la entrada inválida del scanner
+        scanner.next();
       }
-
-      // Almacenar el dato del scanner
-      salario = scanner.nextDouble();
-    } while (salario <= 0);
+      System.out.println();
+    }
 
     // Cerrar scanner
     scanner.close();
-    System.out.println();
 
     // Devolver el salario
     return salario;
